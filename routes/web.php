@@ -10,17 +10,21 @@ Route::get('/', function(){
 
 Route::get('/tasks', function(){
     return view('index', [
-        'tasks' => \App\Models\Task::latest()->where('completed', true)->get()
+        'tasks' => Task::latest()->where('completed', true)->get()
     ]);
 })->name('tasks.index');
 
 Route::view('tasks/create', 'create')->name('tasks.create');
 
 Route::get('/tasks/{id}', function($id){
-    return view('show', ['task' => \App\Models\Task::findOrFail($id)]);
+    return view('show', ['task' => Task::findOrFail($id)]);
 })->name('tasks.show');
 
-Route::post('task/store', function(Request $request){
+Route::get('/tasks/{id}/edit', function($id){
+    return view('edit', ['task' => Task::findOrFail($id)]);
+})->name('tasks.edit');
+
+Route::post('/tasks', function(Request $request){
 
     $data = $request->validate([
         'title' => 'required|max:255',
@@ -36,6 +40,22 @@ Route::post('task/store', function(Request $request){
 
     return redirect()->route('tasks.show', ['id' => $task->id])->with('success', 'Task created successfully!');
 })->name('tasks.store');
+
+Route::put('/tasks/{id}', function($id, Request $request){
+    $data = $request->validate([
+        'title' => 'required|max:255',
+        'description' => 'required',
+        'long_description' => 'required'
+    ]);
+
+    $task = Task::findOrFail($id);
+    $task->title = $data['title'];
+    $task->description = $data['description'];
+    $task->long_description = $data['long_description'];
+    $task->save();
+
+    return redirect()->route('tasks.show', ['id' => $task->id])->with('success', 'Task updated successfully!');
+})->name('tasks.update');
 
 Route::fallback(function () {
     return 'Still got somewhere!';
