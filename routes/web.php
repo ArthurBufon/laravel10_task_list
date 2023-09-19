@@ -5,59 +5,81 @@ use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function(){
-    return redirect()->route('tasks.index');
+// Welcome page.
+Route::get('/', function () {
+    return view('welcome');
 });
 
-// All Tasks.
-Route::get('/tasks', function(){
-    return view('index', [
-        'tasks' => Task::latest()->paginate(6)
-    ]);
-})->name('tasks.index');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware('auth')->name('dashboard');
 
-// Form create Task.
-Route::view('tasks/create', 'create')->name('tasks.create');
+// User authenticated routes.
+Route::middleware('auth')->group(function () {
 
-// Show Task.
-Route::get('/tasks/{task}', function(Task $task){
-    return view('show', ['task' => $task]);
-})->name('tasks.show');
+    // Dashboard.
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
-// Form edit task.
-Route::get('/tasks/{task}/edit', function(Task $task){
-    return view('edit', ['task' => $task]);
-})->name('tasks.edit');
+    // All Tasks.
+    Route::get('/tasks', function () {
+        return view('index', [
+            'tasks' => Task::latest()->paginate(6)
+        ]);
+    })->name('tasks.index');
 
-// New Task.
-Route::post('/tasks', function(TaskRequest $request){
-    $task = Task::create($request->validated());
+    // Form create Task.
+    Route::view('tasks/create', 'create')->name('tasks.create');
 
-    return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Task created successfully!');
-})->name('tasks.store');
+    // Show Task.
+    Route::get('/tasks/{task}', function (Task $task) {
+        return view('show', ['task' => $task]);
+    })->name('tasks.show');
 
-// Update Task.
-Route::put('/tasks/{task}', function(Task $task, TaskRequest $request){
-    $task->update($request->validated());
+    // Form edit task.
+    Route::get('/tasks/{task}/edit', function (Task $task) {
+        return view('edit', ['task' => $task]);
+    })->name('tasks.edit');
 
-    return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Task updated successfully!');
-})->name('tasks.update');
+    // New Task.
+    Route::post('/tasks', function (TaskRequest $request) {
+        $task = Task::create($request->validated());
 
-// Delete Task.
-Route::delete('/tasks/{task}', function(Task $task) {
-    $task->delete();
+        return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Task created successfully!');
+    })->name('tasks.store');
 
-    return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
-})->name('tasks.destroy');
+    // Update Task.
+    Route::put('/tasks/{task}', function (Task $task, TaskRequest $request) {
+        $task->update($request->validated());
 
-// Complete Task.
-Route::put('tasks/{task}/toggle-complete', function (Task $task) {
-    $task->toggleComplete();
+        return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Task updated successfully!');
+    })->name('tasks.update');
 
-    return redirect()->back()->with('success', 'Task updated successfully!');
-})->name('tasks.toggle-complete');
+    // Delete Task.
+    Route::delete('/tasks/{task}', function (Task $task) {
+        $task->delete();
+
+        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
+    })->name('tasks.destroy');
+
+    // Complete Task.
+    Route::put('tasks/{task}/toggle-complete', function (Task $task) {
+        $task->toggleComplete();
+
+        return redirect()->back()->with('success', 'Task updated successfully!');
+    })->name('tasks.toggle-complete');
+
+    // Profile Routes.
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
 // Route not found.
 Route::fallback(function () {
     return 'Still got somewhere!';
 });
+
+// Auth routes (login/register/etc...)
+require __DIR__.'/auth.php';

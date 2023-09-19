@@ -37,7 +37,9 @@
 </head>
 
 <body class="container mx-auto mt-10 mb-10 max-w-lg">
-    <h1 class="mb-4 text-2xl">
+    @include('layouts.navigation')
+
+    <h1 class="mt-10 mb-4 text-2xl">
         @yield('title')
     </h1>
     <div x-data="{ flash: true }">
