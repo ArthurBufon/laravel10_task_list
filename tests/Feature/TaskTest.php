@@ -26,14 +26,14 @@ class TaskTest extends TestCase
             'description' => 'Learn Unit Test with PHPUnit',
             'long_description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
         ]);
-        // dd($response->getContent());
+
         // Asserts no errors occured.
         $response->assertSessionHasNoErrors();
 
-        // // Asserts the redirect.
+        // Asserts the redirect.
         $response->assertRedirect('/tasks');
 
-        // // Asserts that database has 1 tasks.
+        // Asserts that database has 1 tasks.
         $this->assertCount(1, Task::all());
 
         // Checks if task was stored in database.
@@ -42,5 +42,27 @@ class TaskTest extends TestCase
             'description' => 'Learn Unit Test with PHPUnit',
             'long_description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
         ]);
+    }
+
+
+    /**
+     * Test if admin can create a new task.
+     */
+    public function test_admin_can_see_the_edit_product_page()
+    {
+        // Creates new admin user.
+        $admin = User::factory()->create(['is_admin' => 1]);
+
+        // Creates new task.
+        $task = Task::factory()->create();
+
+        // Sends get request to edit task route.
+        $response = $this->actingAs($admin)->get('/tasks/' . $task->id. '/edit');
+
+        // Verifies if response status is 200.
+        $response->assertStatus(200);
+
+        // Verifying if edit page contains the title of the created task.
+        $response->assertSee($task->title);
     }
 }
