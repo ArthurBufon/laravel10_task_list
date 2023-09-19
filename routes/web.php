@@ -16,7 +16,7 @@ Route::get('/dashboard', function () {
 })->middleware('auth')->name('dashboard');
 
 // User authenticated routes.
-Route::middleware('auth')->group(function () {
+Route::middleware('admin')->group(function () {
 
     // Dashboard.
     Route::get('/dashboard', function () {
