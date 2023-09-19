@@ -47,7 +47,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/tasks', function (TaskRequest $request) {
         $task = Task::create($request->validated());
 
-        return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Task created successfully!');
+        return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
     })->name('tasks.store');
 
     // Update Task.
