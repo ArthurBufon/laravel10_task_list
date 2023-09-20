@@ -3,7 +3,6 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Requests\TaskRequest;
 use App\Models\Task;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Welcome page.

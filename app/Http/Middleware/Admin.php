@@ -15,6 +15,7 @@ class Admin
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // If user is not authenticated or admin, throws 403 forbidden.
         if(!auth()->user() || !auth()->user()->is_admin){
             abort(403);
         }

@@ -45,7 +45,7 @@ class TaskTest extends TestCase
     }
 
     /**
-     * Test if admin can create a new task.
+     * Test if admin can see the edit page for a task.
      */
     public function test_admin_can_see_the_edit_task_page()
     {
@@ -66,7 +66,7 @@ class TaskTest extends TestCase
     }
 
     /**
-     * Test if admin can update a task
+     * Test if admin can update a task.
      */
     public function test_admin_can_update_task()
     {
@@ -74,13 +74,10 @@ class TaskTest extends TestCase
         $admin = User::factory()->create(['is_admin' => 1]);
 
         // Creates new task.
-        Task::factory()->create();
+        $task = Task::factory()->create();
 
-        // Asserts that there is at least 1 task in table.
-        $this->assertCount(1, Task::all());
-
-        // Gets the first task.
-        $task = Task::first();
+        // Asserts that there are 2 tasks in db.
+        $this->assertCount(3, Task::all());
 
         // Sends put request to update task route.
         $response = $this->actingAs($admin)->put('/tasks/' . $task->id, [
@@ -95,14 +92,17 @@ class TaskTest extends TestCase
         // Asserts the redirect.
         $response->assertRedirect('/tasks');
 
+        // Returns task.
+        $task = Task::findOrFail($task->id);
+
         // Asserts that the data of the task has been updated successfully.
-        $this->assertEquals('UPDATED Learn Programming', Task::first()->title);
-        $this->assertEquals('UPDATED Learn Unit Test with PHPUnit', Task::first()->description);
-        $this->assertEquals('UPDATED Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', Task::first()->long_description);
+        $this->assertEquals('UPDATED Learn Programming', $task->title);
+        $this->assertEquals('UPDATED Learn Unit Test with PHPUnit', $task->description);
+        $this->assertEquals('UPDATED Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', $task->long_description);
     }
 
     /**
-     * Test if admin can delete a task
+     * Test if admin can delete a task.
      */
     public function test_admin_can_delete_task()
     {
@@ -112,8 +112,8 @@ class TaskTest extends TestCase
         // Creates new task.
         $task = Task::factory()->create();
 
-        // Asserts that there is at least 1 task in table.
-        $this->assertEquals(1, Task::count());
+        // Asserts that there are 4 tasks in db.
+        $this->assertEquals(4, Task::count());
 
         // Sends delete request to delete task route.
         $response = $this->actingAs($admin)->delete('/tasks/'. $task->id);
@@ -121,7 +121,7 @@ class TaskTest extends TestCase
         // Asserts response status is 302 (deleted successfully).
         $response->assertStatus(302);
 
-        // Asserts tasks table is empty
-        $this->assertEquals(0, Task::count());
+        // Asserts tasks table has 3 records.
+        $this->assertEquals(3, Task::count());
     }
 }
